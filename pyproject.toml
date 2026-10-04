@@ -24,3 +24,4 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+faulthandler_timeout = 60  # dump stack traces if any test hangs
