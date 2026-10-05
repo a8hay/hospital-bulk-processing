@@ -5,7 +5,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5434/hospital_bulk"
+    # required, with no default: a missing DATABASE_URL must stop startup with a clear error,
+    # not fall back to a local address and fail later with a confusing connection error
+    database_url: str
 
     upstream_base_url: str = "https://hospital-directory.onrender.com"
     upstream_concurrency: int = 10

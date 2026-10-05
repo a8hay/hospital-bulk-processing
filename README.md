@@ -1,5 +1,11 @@
 # Hospital Bulk Processing
 
+- **Live app:** https://hospital-bulk-8g2n.onrender.com (interactive docs at [`/docs`](https://hospital-bulk-8g2n.onrender.com/docs))
+- **Repository:** https://github.com/a8hay/hospital-bulk-processing
+
+Both the app and the upstream API run on Render's free tier and sleep when idle, so the first
+request after a quiet period can take 30–60s.
+
 A service that accepts a CSV of up to 20 hospitals, creates each one through the
 [Hospital Directory API](https://hospital-directory.onrender.com/docs), and activates the batch once
 every row exists. Processing is asynchronous: the upload returns `202 Accepted` immediately and the
@@ -18,6 +24,14 @@ curl -i -F "file=@hospitals.csv;type=text/csv" localhost:8000/hospitals/bulk
 # location: /hospitals/bulk/67d4a3ad-...
 
 curl localhost:8000/hospitals/bulk/67d4a3ad-...   # poll until status is no longer processing/activating
+```
+
+To run the app outside Docker, start only the database and use the example environment:
+
+```bash
+docker compose up -d db
+cp .env.example .env
+uv run uvicorn --factory app.main:create_app --reload
 ```
 
 ## API
@@ -134,7 +148,7 @@ All settings are environment variables (see `app/config.py`). The important ones
 
 | Variable | Default |
 | --- | --- |
-| `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5434/hospital_bulk` (`postgres://` URLs are accepted) |
+| `DATABASE_URL` | **Required**, no default, so a missing value fails at startup. `postgres://` URLs are accepted. On Render it is injected from the managed database |
 | `UPSTREAM_BASE_URL` | `https://hospital-directory.onrender.com` |
 | `UPSTREAM_CONCURRENCY` | `10` |
 | `UPSTREAM_READ_TIMEOUT` / `UPSTREAM_WARM_UP_TIMEOUT` | `30` / `60` seconds |
